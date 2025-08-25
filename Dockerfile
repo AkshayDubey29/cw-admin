@@ -11,8 +11,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production --silent
+# Install dependencies (skip prepare script for production)
+RUN npm ci --only=production --silent --ignore-scripts
 
 # Copy source code
 COPY . .
@@ -38,8 +38,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/package*.json ./
 COPY --from=builder --chown=nextjs:nodejs /app/next.config.js ./
 
-# Install only production dependencies
-RUN npm ci --only=production --silent && npm cache clean --force
+# Install only production dependencies (skip prepare script)
+RUN npm ci --only=production --silent --ignore-scripts && npm cache clean --force
 
 # Switch to non-root user
 USER nextjs
