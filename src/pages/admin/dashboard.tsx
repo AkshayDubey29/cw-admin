@@ -57,8 +57,8 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      dispatch(fetchAdminProfile());
-      dispatch(fetchNotifications());
+      dispatch(fetchAdminProfile() as any);
+      dispatch(fetchNotifications() as any);
       loadDashboardData();
     }
   }, [dispatch, isAuthenticated]);
