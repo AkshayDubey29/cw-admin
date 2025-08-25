@@ -13,6 +13,12 @@ NAMESPACE="creatworx"
 IMAGE_NAME="gcr.io/createworx/cw-admin"
 IMAGE_TAG=${1:-"latest"}  # Use provided tag or default to latest
 
+# Check if we're doing initial deployment with nginx
+INITIAL_DEPLOYMENT=false
+if [[ "$1" == "deploy" || "$1" == "" ]]; then
+    INITIAL_DEPLOYMENT=true
+fi
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -90,10 +96,17 @@ get_cluster_credentials() {
 check_image_exists() {
     print_status "Checking if Docker image exists..."
     
+    # Skip image check for initial deployment since we're using nginx:alpine
+    if [[ "$INITIAL_DEPLOYMENT" == "true" ]]; then
+        print_warning "Using nginx:alpine for initial deployment"
+        print_status "CI/CD pipeline will build and push the actual cw-admin image"
+        return 0
+    fi
+    
     if ! gcloud container images describe $IMAGE_NAME:$IMAGE_TAG &> /dev/null; then
         print_warning "Image $IMAGE_NAME:$IMAGE_TAG not found in GCR"
         print_status "Available tags:"
-        gcloud container images list-tags $IMAGE_NAME --limit=10 --format="table(tags,timestamp.datetime)"
+        gcloud container images list-tags $IMAGE_NAME --limit=10 --format="table(tags,timestamp.datetime)" 2>/dev/null || echo "No tags found"
         print_error "Please ensure the image is built and pushed via CI/CD pipeline first"
         exit 1
     fi
@@ -108,8 +121,12 @@ deploy_to_kubernetes() {
     # Create namespace if it doesn't exist
     kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
     
-    # Update image tag in deployment
-    sed "s|IMAGE_TAG|$IMAGE_TAG|g" k8s/deployment.yaml > k8s/deployment-temp.yaml
+    # Update image tag in deployment (only for non-initial deployments)
+    if [[ "$INITIAL_DEPLOYMENT" == "true" ]]; then
+        cp k8s/deployment.yaml k8s/deployment-temp.yaml
+    else
+        sed "s|IMAGE_TAG|$IMAGE_TAG|g" k8s/deployment.yaml > k8s/deployment-temp.yaml
+    fi
     
     # Apply Kubernetes manifests
     print_status "Applying Kubernetes manifests..."

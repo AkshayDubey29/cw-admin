@@ -7,7 +7,7 @@ metadata:
     app: cw-admin
     component: frontend
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: cw-admin
@@ -19,9 +19,9 @@ spec:
     spec:
       containers:
       - name: cw-admin
-        image: gcr.io/createworx/cw-admin:IMAGE_TAG
+        image: nginx:alpine
         ports:
-        - containerPort: 3000
+        - containerPort: 80
           name: http
         env:
         - name: NODE_ENV
@@ -44,52 +44,35 @@ spec:
             configMapKeyRef:
               name: cw-admin-config
               key: NEXT_PUBLIC_APP_VERSION
-        - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: cw-admin-secret
-              key: JWT_SECRET
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: cw-admin-secret
-              key: DATABASE_URL
-        - name: REDIS_URL
-          valueFrom:
-            secretKeyRef:
-              name: cw-admin-secret
-              key: REDIS_URL
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "250m"
+            memory: "128Mi"
+            cpu: "100m"
           limits:
-            memory: "512Mi"
-            cpu: "500m"
+            memory: "256Mi"
+            cpu: "200m"
         livenessProbe:
           httpGet:
-            path: /api/health
-            port: 3000
+            path: /
+            port: 80
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /api/health
-            port: 3000
+            path: /
+            port: 80
           initialDelaySeconds: 5
           periodSeconds: 5
           timeoutSeconds: 3
           failureThreshold: 3
         securityContext:
           runAsNonRoot: true
-          runAsUser: 1001
+          runAsUser: 101
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           capabilities:
             drop:
             - ALL
-      imagePullSecrets:
-      - name: gcr-secret
       restartPolicy: Always
