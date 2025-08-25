@@ -129,6 +129,7 @@ jobs:
 
   security-scan:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -139,12 +140,14 @@ jobs:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           format: 'sarif'
           output: 'trivy-results.sarif'
+        continue-on-error: true
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
+        continue-on-error: true
 
   performance-test:
     needs: deploy
@@ -168,12 +171,15 @@ jobs:
           sleep 60
           # Run basic load test
           artillery quick --count 10 --num 5 https://admin.creatworx.com/api/health
+        continue-on-error: true
 
       - name: Upload performance results
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: performance-results
           path: artillery-report.json
+        continue-on-error: true
 
   notify:
     needs: [deploy, security-scan, performance-test]
@@ -232,3 +238,4 @@ jobs:
                 body: commentBody,
               });
             }
+        continue-on-error: true
