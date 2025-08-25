@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  output: 'standalone',
   images: {
     domains: ['localhost', 'creatworx.com', 'admin.creatworx.com'],
     formats: ['image/webp', 'image/avif'],
