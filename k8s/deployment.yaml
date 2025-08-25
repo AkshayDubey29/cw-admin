@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: cw-admin
-        image: gcr.io/createworx/cw-admin:IMAGE_TAG
+        image: us-central1-docker.pkg.dev/createworx/cw-admin/cw-admin:IMAGE_TAG
         ports:
         - containerPort: 3000
           name: http
