@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: us-central1-docker.pkg.dev
-  IMAGE_NAME: createworx/cw-admin
+  IMAGE_NAME: createworx/cw-admin/cw-admin
   PROJECT_ID: createworx
   CLUSTER_NAME: creatworx-cluster
   CLUSTER_REGION: us-central1
