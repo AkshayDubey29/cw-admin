@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cw-admin
-  namespace: creatworx
+  namespace: cw-admin
   labels:
     app: cw-admin
     component: frontend
@@ -75,4 +75,13 @@ spec:
           capabilities:
             drop:
             - ALL
+      # Add tolerations for node taints
+      tolerations:
+      - key: "dedicated"
+        operator: "Equal"
+        value: "production"
+        effect: "NoSchedule"
+      # Add node selector to prefer production nodes
+      nodeSelector:
+        dedicated: "production"
       restartPolicy: Always

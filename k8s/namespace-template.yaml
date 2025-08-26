@@ -1,0 +1,16 @@
+# Template for service-specific namespaces
+# Replace SERVICE_NAME with the actual service name (e.g., cw-auth, cw-content, etc.)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: SERVICE_NAME
+  labels:
+    name: SERVICE_NAME
+    app: SERVICE_NAME
+    component: backend  # or frontend, api, etc.
+    environment: production
+    team: platform
+    # Add additional labels as needed:
+    # - monitoring: enabled
+    # - backup: enabled
+    # - security: high

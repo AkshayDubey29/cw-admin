@@ -1,0 +1,72 @@
+# Template for service deployments with proper node taint handling
+# Replace SERVICE_NAME with the actual service name
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: SERVICE_NAME
+  namespace: SERVICE_NAME
+  labels:
+    app: SERVICE_NAME
+    component: backend  # or frontend, api, etc.
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: SERVICE_NAME
+  template:
+    metadata:
+      labels:
+        app: SERVICE_NAME
+        component: backend  # or frontend, api, etc.
+    spec:
+      # Add tolerations for node taints
+      tolerations:
+      - key: "dedicated"
+        operator: "Equal"
+        value: "production"
+        effect: "NoSchedule"
+      # Add node selector to prefer production nodes
+      nodeSelector:
+        dedicated: "production"
+      
+      containers:
+      - name: SERVICE_NAME
+        image: us-central1-docker.pkg.dev/createworx/SERVICE_NAME/SERVICE_NAME:IMAGE_TAG
+        ports:
+        - containerPort: 8080  # Adjust port as needed
+          name: http
+        env:
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      restartPolicy: Always

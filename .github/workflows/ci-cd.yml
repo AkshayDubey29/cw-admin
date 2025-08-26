@@ -13,7 +13,7 @@ env:
   PROJECT_ID: createworx
   CLUSTER_NAME: creatworx-cluster
   CLUSTER_REGION: us-central1
-  NAMESPACE: creatworx
+  NAMESPACE: cw-admin
 
 jobs:
   test:

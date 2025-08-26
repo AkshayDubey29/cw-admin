@@ -1,8 +1,10 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: creatworx
+  name: cw-admin
   labels:
-    name: creatworx
-    app: creatworx
+    name: cw-admin
+    app: cw-admin
+    component: frontend
     environment: production
+    team: platform

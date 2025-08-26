@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: cw-admin-config
-  namespace: creatworx
+  namespace: cw-admin
   labels:
     app: cw-admin
     component: config
