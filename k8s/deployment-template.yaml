@@ -27,7 +27,7 @@ spec:
         effect: "NoSchedule"
       # Add node selector to prefer production nodes
       nodeSelector:
-        dedicated: "production"
+        pool: "primary"
       
       containers:
       - name: SERVICE_NAME
