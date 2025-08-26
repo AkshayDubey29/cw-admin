@@ -91,6 +91,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -99,21 +106,8 @@ jobs:
 
       - name: Install gke-gcloud-auth-plugin
         run: |
-          # Detect architecture and download the correct binary
-          ARCH=$(uname -m)
-          if [ "$ARCH" = "x86_64" ]; then
-            BINARY="gke-gcloud-auth-plugin-linux-amd64"
-          elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
-            BINARY="gke-gcloud-auth-plugin-linux-arm64"
-          else
-            echo "Unsupported architecture: $ARCH"
-            exit 1
-          fi
-          
-          # Download and install the gke-gcloud-auth-plugin manually
-          curl -LO "https://storage.googleapis.com/gke-release/gke-gcloud-auth-plugin/v1.0.0/$BINARY"
-          sudo mv "$BINARY" /usr/local/bin/gke-gcloud-auth-plugin
-          sudo chmod +x /usr/local/bin/gke-gcloud-auth-plugin
+          # Use gcloud to install the plugin (this should work with the setup-gcloud action)
+          gcloud components install gke-gcloud-auth-plugin --quiet
           echo "USE_GKE_GCLOUD_AUTH_PLUGIN=True" >> $GITHUB_ENV
       
       - name: Get GKE credentials
