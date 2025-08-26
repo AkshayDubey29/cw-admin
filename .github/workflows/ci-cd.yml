@@ -136,8 +136,9 @@ jobs:
 
       - name: Deploy to GKE
         run: |
-          # Update image tag in deployment
-          sed -i "s|IMAGE_TAG|${{ github.sha }}|g" k8s/deployment.yaml
+          # Update image tag in deployment with short SHA
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          sed -i "s|IMAGE_TAG|main-$SHORT_SHA|g" k8s/deployment.yaml
           
           # Apply Kubernetes manifests with validation disabled if needed
           kubectl apply -f k8s/namespace.yaml --validate=false
