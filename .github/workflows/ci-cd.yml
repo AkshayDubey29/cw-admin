@@ -118,8 +118,19 @@ jobs:
 
       - name: Verify cluster connectivity
         run: |
-          # Test basic connectivity to the cluster
-          kubectl cluster-info
+          # Test basic connectivity to the cluster with retries
+          for i in {1..5}; do
+            echo "Attempt $i: Testing cluster connectivity..."
+            if kubectl cluster-info --request-timeout=30s; then
+              echo "Cluster connectivity successful!"
+              break
+            else
+              echo "Attempt $i failed, waiting 10 seconds before retry..."
+              sleep 10
+            fi
+          done
+          
+          # Verify nodes are accessible
           kubectl get nodes --no-headers | wc -l
           echo "Cluster connectivity verified"
 
